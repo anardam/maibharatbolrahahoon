@@ -10,20 +10,40 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.maibharatbolrahahoon.com";
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const article = getArticleBySlug(slug);
   if (!article) return {};
 
+  const { frontmatter } = article;
+  const url = `${SITE_URL}/article/${frontmatter.slug}`;
+
   return {
-    title: `${article.frontmatter.title} | Mai Bharat Bol Raha Hoon`,
-    description: article.frontmatter.excerpt,
+    title: frontmatter.title,
+    description: frontmatter.excerpt,
+    authors: [{ name: frontmatter.author }],
     openGraph: {
-      title: article.frontmatter.title,
-      description: article.frontmatter.excerpt,
-      images: article.frontmatter.coverImage
-        ? [article.frontmatter.coverImage]
-        : [],
+      type: "article",
+      title: frontmatter.title,
+      description: frontmatter.excerpt,
+      url,
+      siteName: "Mai Bharat Bol Raha Hoon",
+      publishedTime: frontmatter.publishedAt || frontmatter.createdAt,
+      modifiedTime: frontmatter.updatedAt,
+      authors: [frontmatter.author],
+      section: frontmatter.category,
+      images: frontmatter.coverImage ? [{ url: frontmatter.coverImage, width: 1200, height: 630, alt: frontmatter.title }] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: frontmatter.title,
+      description: frontmatter.excerpt,
+      images: frontmatter.coverImage ? [frontmatter.coverImage] : [],
+    },
+    alternates: {
+      canonical: url,
     },
   };
 }
@@ -184,6 +204,52 @@ export default async function ArticlePage({ params }: Props) {
           )}
         </div>
       </div>
+
+      {/* JSON-LD Article Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "NewsArticle",
+            headline: frontmatter.title,
+            description: frontmatter.excerpt,
+            image: frontmatter.coverImage || undefined,
+            datePublished: frontmatter.publishedAt || frontmatter.createdAt,
+            dateModified: frontmatter.updatedAt,
+            author: {
+              "@type": "Person",
+              name: frontmatter.author,
+            },
+            publisher: {
+              "@type": "NewsMediaOrganization",
+              name: "Mai Bharat Bol Raha Hoon",
+              url: SITE_URL,
+            },
+            mainEntityOfPage: {
+              "@type": "WebPage",
+              "@id": `${SITE_URL}/article/${frontmatter.slug}`,
+            },
+            articleSection: frontmatter.category,
+          }),
+        }}
+      />
+
+      {/* JSON-LD Breadcrumb Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+              { "@type": "ListItem", position: 2, name: frontmatter.category, item: `${SITE_URL}/category/${frontmatter.category}` },
+              { "@type": "ListItem", position: 3, name: frontmatter.title },
+            ],
+          }),
+        }}
+      />
     </article>
   );
 }
