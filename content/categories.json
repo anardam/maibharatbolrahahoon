@@ -1,0 +1,9 @@
+[
+  { "name": "राजनीति", "slug": "politics" },
+  { "name": "खेल", "slug": "sports" },
+  { "name": "टेक्नोलॉजी", "slug": "technology" },
+  { "name": "मनोरंजन", "slug": "entertainment" },
+  { "name": "शिक्षा", "slug": "education" },
+  { "name": "स्वास्थ्य", "slug": "health" },
+  { "name": "व्यापार", "slug": "business" }
+]
