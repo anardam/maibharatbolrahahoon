@@ -8,7 +8,7 @@ export function slugify(text: string): string {
 }
 
 export function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString("hi-IN", {
+  return new Date(dateString).toLocaleDateString("en-IN", {
     year: "numeric",
     month: "long",
     day: "numeric",

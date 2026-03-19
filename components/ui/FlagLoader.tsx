@@ -2,7 +2,7 @@
 
 export function FlagLoader() {
   return (
-    <div className="flex flex-col items-center justify-center py-16">
+    <div role="status" aria-live="polite" aria-label="Loading" className="flex flex-col items-center justify-center py-16">
       <div className="flag-container">
         <svg
           width="80"

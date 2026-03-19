@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 :root {
   /* Modern Saffron/Crimson theme — Bharat inspired */
@@ -19,26 +20,17 @@
   --radius: 0.75rem;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.13 0.02 30);
+  /* Status colors — token-based for dark mode compatibility */
+  --status-published-bg: oklch(0.95 0.05 145);
+  --status-published-text: oklch(0.4 0.1 145);
+  --status-review-bg: oklch(0.95 0.06 80);
+  --status-review-text: oklch(0.5 0.12 65);
+  --status-draft-bg: oklch(0.95 0.005 80);
+  --status-draft-text: oklch(0.45 0.01 30);
+  --status-sa-bg: oklch(0.95 0.06 80);
+  --status-sa-text: oklch(0.5 0.12 65);
 }
 
-.dark {
-  --background: oklch(0.12 0.02 30);
-  --foreground: oklch(0.93 0.01 80);
-  --primary: oklch(0.65 0.22 25);
-  --primary-foreground: oklch(0.12 0.02 30);
-  --secondary: oklch(0.3 0.08 65);
-  --secondary-foreground: oklch(0.93 0.01 80);
-  --accent: oklch(0.25 0.05 80);
-  --accent-foreground: oklch(0.93 0.01 80);
-  --muted: oklch(0.2 0.02 30);
-  --muted-foreground: oklch(0.6 0.02 80);
-  --destructive: oklch(0.65 0.22 25);
-  --border: oklch(0.25 0.02 30);
-  --input: oklch(0.25 0.02 30);
-  --ring: oklch(0.65 0.22 25);
-  --card: oklch(0.16 0.02 30);
-  --card-foreground: oklch(0.93 0.01 80);
-}
 
 * {
   box-sizing: border-box;
@@ -52,12 +44,45 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Tricolor diagonal gradient — fixed behind all content */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 153, 51, 0.25) 0%,
+    rgba(255, 153, 51, 0.06) 30%,
+    transparent 50%,
+    rgba(19, 136, 8, 0.06) 70%,
+    rgba(19, 136, 8, 0.2) 100%
+  );
+}
+
 /* Utility classes */
 .text-primary { color: var(--primary); }
 .bg-primary { background: var(--primary); }
 .text-muted { color: var(--muted-foreground); }
 .bg-card { background: var(--card); }
 .border-default { border-color: var(--border); }
+
+/* Prose overrides for Devanagari readability */
+.prose {
+  --tw-prose-body: var(--foreground);
+  --tw-prose-headings: var(--foreground);
+  --tw-prose-links: var(--primary);
+  --tw-prose-bold: var(--foreground);
+  --tw-prose-counters: var(--muted-foreground);
+  --tw-prose-bullets: var(--muted-foreground);
+  --tw-prose-quotes: var(--foreground);
+  --tw-prose-quote-borders: var(--primary);
+  --tw-prose-code: var(--foreground);
+  --tw-prose-hr: var(--border);
+  font-size: 1.125rem;
+  line-height: 1.8;
+}
 
 /* Smooth scrolling */
 html {
@@ -67,4 +92,111 @@ html {
 /* Selection color */
 ::selection {
   background: oklch(0.52 0.22 25 / 0.2);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideUpFade {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Staggered entrance for article grid items (legacy — kept for safety) */
+.article-grid-item {
+  animation: slideUpFade 400ms ease-out both;
+}
+.article-grid-item:nth-child(1) { animation-delay: 0ms; }
+.article-grid-item:nth-child(2) { animation-delay: 60ms; }
+.article-grid-item:nth-child(3) { animation-delay: 120ms; }
+.article-grid-item:nth-child(4) { animation-delay: 180ms; }
+.article-grid-item:nth-child(5) { animation-delay: 240ms; }
+.article-grid-item:nth-child(6) { animation-delay: 300ms; }
+
+/* ─── ArticlesSection — staggered entrance ───────────────────────────────── */
+/* Base: all items fade-slide up */
+.articles-section-item {
+  animation: slideUpFade 450ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Delay tiers for visual staggering within each block */
+.articles-section-item--delay-0 { animation-delay: 0ms; }
+.articles-section-item--delay-1 { animation-delay: 80ms; }
+.articles-section-item--delay-2 { animation-delay: 160ms; }
+.articles-section-item--delay-3 { animation-delay: 240ms; }
+
+/* Hero card — image parallax scrim pulse on first paint */
+@keyframes scrimReveal {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.article-card-hero {
+  animation: scrimReveal 600ms ease-out both;
+}
+
+/* Category badge hover — subtle background wipe */
+.article-category-badge {
+  position: relative;
+  transition: color 200ms ease, background 200ms ease, opacity 200ms ease;
+}
+.article-category-badge:hover {
+  opacity: 0.85;
+}
+
+/* View-all CTA button — ensure z-index stacking works */
+.articles-view-all-btn {
+  isolation: isolate;
+}
+
+/* Compact card thumbnail inner overlay on hover */
+.group:hover .compact-thumb-overlay {
+  opacity: 1;
+}
+.compact-thumb-overlay {
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+/* Category pill transitions */
+.category-pill {
+  border-color: oklch(0.91 0.015 60);
+  background: oklch(1 0 0);
+  transition: background 200ms ease, border-color 200ms ease, color 200ms ease, box-shadow 200ms ease;
+}
+.category-pill:hover {
+  background: oklch(0.52 0.22 25);
+  border-color: oklch(0.52 0.22 25);
+  color: white;
+}
+
+/* Premium scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: oklch(0.97 0.003 80); }
+::-webkit-scrollbar-thumb {
+  background: oklch(0.52 0.22 25 / 0.35);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.52 0.22 25 / 0.6);
+}
+
+/* Screen reader only utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }

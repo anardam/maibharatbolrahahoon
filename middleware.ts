@@ -1,10 +1,18 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
-const isAdminRoute = createRouteMatcher(["/(admin)(.*)"]);
+const isProtectedRoute = createRouteMatcher([
+  "/(admin)(.*)",
+  "/api(.*)",
+]);
 
 export default clerkMiddleware(async (auth, req) => {
-  if (isAdminRoute(req)) {
-    await auth.protect();
+  if (isProtectedRoute(req)) {
+    // Require sign-in for all admin/api routes
+    const session = await auth.protect();
+
+    // Additional whitelist check happens in API route handlers via requireAuth()
+    // Middleware only ensures the user is authenticated with Clerk
   }
 });
 

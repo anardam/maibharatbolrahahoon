@@ -12,6 +12,7 @@ export interface ArticleFrontmatter {
   category: string;
   author: string;
   youtubeUrls?: string[];
+  region?: string;
   status: "draft" | "review" | "published";
   publishedAt?: string;
   createdAt: string;
@@ -66,4 +67,9 @@ export function getArticlesByCategory(categorySlug: string): Article[] {
   return getPublishedArticles().filter(
     (a) => a.frontmatter.category === categorySlug
   );
+}
+
+export function getCategoryName(slug: string): string {
+  const categories = getCategories();
+  return categories.find((c) => c.slug === slug)?.name ?? slug;
 }

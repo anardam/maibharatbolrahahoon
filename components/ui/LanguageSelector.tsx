@@ -19,9 +19,15 @@ export function LanguageSelector({ locale }: { locale: Locale }) {
   );
 
   return (
-    <div className="flex items-center gap-1 rounded-full border border-[var(--border)] bg-[var(--muted)] p-0.5">
+    <div
+      role="group"
+      aria-label="भाषा चुनें / Select language"
+      className="flex items-center gap-1 rounded-full border border-[var(--border)] bg-[var(--muted)] p-0.5"
+    >
       <button
         onClick={() => switchLocale("hi")}
+        aria-pressed={locale === "hi"}
+        aria-label="हिंदी में देखें"
         className={`rounded-full px-2.5 py-1 text-xs font-medium transition-all ${
           locale === "hi"
             ? "bg-[var(--primary)] text-white shadow-sm"
@@ -32,6 +38,8 @@ export function LanguageSelector({ locale }: { locale: Locale }) {
       </button>
       <button
         onClick={() => switchLocale("en")}
+        aria-pressed={locale === "en"}
+        aria-label="View in English"
         className={`rounded-full px-2.5 py-1 text-xs font-medium transition-all ${
           locale === "en"
             ? "bg-[var(--primary)] text-white shadow-sm"
