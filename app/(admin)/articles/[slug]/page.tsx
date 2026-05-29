@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, lazy, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+
+const RichTextEditor = lazy(() => import("@/components/editor/RichTextEditor"));
 
 interface StatusMessage {
   type: "success" | "error" | "info";
@@ -204,10 +206,10 @@ export default function EditArticlePage({ params }: { params: Promise<{ slug: st
           </div>
 
           <div>
-            <label htmlFor="content" className="mb-1.5 block text-xs font-bold uppercase tracking-widest text-[var(--muted-foreground)]">Content</label>
-            <textarea id="content" value={content} onChange={(e) => setContent(e.target.value)} rows={14}
-              className="w-full rounded-xl border bg-transparent px-4 py-3 font-mono text-sm outline-none focus:ring-2 focus:ring-[var(--ring)]"
-              style={{ borderColor: "oklch(0.91 0.015 60)" }} />
+            <label className="mb-1.5 block text-xs font-bold uppercase tracking-widest text-[var(--muted-foreground)]">Content</label>
+            <Suspense fallback={<div className="h-[350px] animate-pulse rounded-xl bg-[var(--muted)]" />}>
+              <RichTextEditor value={content} onChange={setContent} />
+            </Suspense>
           </div>
         </div>
 
