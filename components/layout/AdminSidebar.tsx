@@ -51,11 +51,6 @@ const NAV_GROUPS: NavGroup[] = [
         label: "Review Queue",
         icon: <IconReview />,
       },
-      {
-        href: "/users",
-        label: "Users",
-        icon: <IconUsers />,
-      },
     ],
   },
 ];
@@ -351,31 +346,6 @@ function IconReview() {
       <path d="M6.5 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H7a.5.5 0 0 1-.5-.5v-1Z" />
       {/* Check mark */}
       <path d="M6.5 10l1.75 1.75 3.25-3.5" />
-    </svg>
-  );
-}
-
-function IconUsers() {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 18 18"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      {/* Primary person head */}
-      <circle cx="7" cy="6" r="2.5" />
-      {/* Primary person body */}
-      <path d="M2 15.5c0-2.485 2.239-4.5 5-4.5s5 2.015 5 4.5" />
-      {/* Secondary person head */}
-      <circle cx="13" cy="6.5" r="2" />
-      {/* Secondary person body arc */}
-      <path d="M11.5 11.25C12.3 11 13.1 11 14 11c2.21 0 4 1.79 4 4" />
     </svg>
   );
 }
