@@ -53,10 +53,7 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Article not found" }, { status: 404 });
     }
 
-    // Rebuild MDX with updates
-    const existingMdx = `---\ntitle: "${article.frontmatter.title}"\nslug: "${article.frontmatter.slug}"\nexcerpt: "${article.frontmatter.excerpt}"\ncoverImage: "${article.frontmatter.coverImage || ""}"\ncategory: "${article.frontmatter.category}"\nauthor: "${article.frontmatter.author}"\nregion: "${article.frontmatter.region || ""}"\nyoutubeUrls: []\nstatus: "${article.frontmatter.status}"\npublishedAt: "${article.frontmatter.publishedAt || ""}"\ncreatedAt: "${article.frontmatter.createdAt}"\nupdatedAt: "${article.frontmatter.updatedAt}"\n---\n\n${article.content}`;
-
-    const updatedMdx = updateArticleMdx(existingMdx, {
+    const updatedMdx = updateArticleMdx(article, {
       title: body.title,
       excerpt: body.excerpt,
       content: body.content,

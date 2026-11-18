@@ -1,4 +1,6 @@
+import matter from "gray-matter";
 import { slugify } from "./utils";
+import type { Article } from "./content";
 
 export interface ArticlePayload {
   title: string;
@@ -13,13 +15,16 @@ export interface ArticlePayload {
   status: "draft" | "review" | "published";
 }
 
-export function serializeArticleToMdx(payload: ArticlePayload): string {
-  const slug = payload.slug || slugify(payload.title);
+// gray-matter's YAML dumper quotes and escapes values, so titles with ", :, \ or newlines round-trip safely
+export function serializeArticleToMdx(
+  payload: ArticlePayload,
+  dates: { createdAt?: string; publishedAt?: string } = {}
+): string {
   const now = new Date().toISOString();
 
-  const frontmatter: Record<string, unknown> = {
+  const frontmatter = {
     title: payload.title,
-    slug,
+    slug: payload.slug || slugify(payload.title),
     excerpt: payload.excerpt,
     coverImage: payload.coverImage || "",
     category: payload.category,
@@ -27,74 +32,36 @@ export function serializeArticleToMdx(payload: ArticlePayload): string {
     region: payload.region || "",
     youtubeUrls: payload.youtubeUrls?.filter(Boolean) || [],
     status: payload.status,
-    publishedAt: payload.status === "published" ? now : "",
-    createdAt: now,
+    publishedAt: payload.status === "published" ? dates.publishedAt || now : "",
+    createdAt: dates.createdAt || now,
     updatedAt: now,
   };
 
-  const yamlLines = Object.entries(frontmatter).map(([key, value]) => {
-    if (Array.isArray(value)) {
-      if (value.length === 0) return `${key}: []`;
-      return `${key}:\n${value.map((v) => `  - "${v}"`).join("\n")}`;
-    }
-    if (typeof value === "string" && (value.includes(":") || value.includes('"') || value.includes("'"))) {
-      return `${key}: "${value.replace(/"/g, '\\"')}"`;
-    }
-    return `${key}: "${value}"`;
-  });
-
-  return `---\n${yamlLines.join("\n")}\n---\n\n${payload.content}\n`;
+  return matter.stringify(`\n${payload.content}\n`, frontmatter);
 }
 
 export function generateArticleFilePath(slug: string): string {
   return `content/articles/${slug}.mdx`;
 }
 
-export function updateArticleMdx(
-  existingMdxContent: string,
-  updates: Partial<ArticlePayload>
-): string {
-  // Parse existing frontmatter
-  const fmMatch = existingMdxContent.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
-  if (!fmMatch) return existingMdxContent;
+export function updateArticleMdx(article: Article, updates: Partial<ArticlePayload>): string {
+  const existing = article.frontmatter;
 
-  const body = updates.content !== undefined ? updates.content : fmMatch[2].trim();
-
-  // Parse existing YAML simply
-  const existingLines = fmMatch[1].split("\n");
-  const existing: Record<string, string> = {};
-  for (const line of existingLines) {
-    const colonIdx = line.indexOf(":");
-    if (colonIdx > 0) {
-      const key = line.slice(0, colonIdx).trim();
-      const val = line.slice(colonIdx + 1).trim().replace(/^"(.*)"$/, "$1");
-      existing[key] = val;
-    }
-  }
-
-  // Build updated payload
   const payload: ArticlePayload = {
-    title: updates.title || existing.title || "",
-    slug: existing.slug || "",
-    excerpt: updates.excerpt || existing.excerpt || "",
-    content: body,
-    category: updates.category || existing.category || "",
-    author: updates.author || existing.author || "",
-    coverImage: updates.coverImage ?? existing.coverImage ?? "",
-    region: updates.region ?? existing.region ?? "",
-    youtubeUrls: updates.youtubeUrls ?? [],
-    status: updates.status || (existing.status as ArticlePayload["status"]) || "draft",
+    title: updates.title || existing.title,
+    slug: existing.slug,
+    excerpt: updates.excerpt || existing.excerpt,
+    content: updates.content ?? article.content.trim(),
+    category: updates.category || existing.category,
+    author: updates.author || existing.author,
+    coverImage: updates.coverImage ?? existing.coverImage,
+    region: updates.region ?? existing.region,
+    youtubeUrls: updates.youtubeUrls ?? existing.youtubeUrls,
+    status: updates.status || existing.status,
   };
 
-  const mdx = serializeArticleToMdx(payload);
-
-  // Preserve original createdAt
-  if (existing.createdAt) {
-    return mdx.replace(
-      /createdAt: "[^"]*"/,
-      `createdAt: "${existing.createdAt}"`
-    );
-  }
-
-  return mdx;
+  return serializeArticleToMdx(payload, {
+    createdAt: existing.createdAt,
+    publishedAt: existing.publishedAt,
+  });
 }
