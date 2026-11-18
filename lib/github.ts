@@ -74,7 +74,7 @@ export async function getFileSha(path: string, branch?: string): Promise<string>
 
 export async function createOrUpdateFile(
   path: string,
-  content: string,
+  content: string | Buffer,
   message: string,
   branch: string,
   existingSha?: string
