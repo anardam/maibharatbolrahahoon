@@ -6,7 +6,8 @@ import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import TextAlign from "@tiptap/extension-text-align";
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef, useState } from "react";
+import { uploadImage } from "@/lib/utils";
 
 interface RichTextEditorProps {
   value: string;
@@ -87,6 +88,24 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
       editor.chain().focus().setImage({ src: url }).run();
     }
   }, [editor]);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  async function handleImageFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !editor) return;
+    setUploading(true);
+    try {
+      const src = await uploadImage(file);
+      editor.chain().focus().setImage({ src }).run();
+    } catch (err) {
+      window.alert(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  }
 
   if (!editor) return null;
 
@@ -210,6 +229,17 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
         <ToolbarButton onClick={addImage} title="Add Image">
           Image
         </ToolbarButton>
+        <ToolbarButton onClick={() => fileInputRef.current?.click()} title="Upload Image">
+          {uploading ? "Uploading…" : "Upload"}
+        </ToolbarButton>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          onChange={handleImageFile}
+          disabled={uploading}
+          className="hidden"
+        />
 
         <div className="mx-1 h-5 w-px bg-[var(--border)]" />
 

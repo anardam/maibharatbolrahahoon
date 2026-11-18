@@ -2,12 +2,15 @@ import { notFound } from "next/navigation";
 import {
   getArticlesByCategory,
   getCategories,
+  paginate,
 } from "@/lib/content";
 import { ArticleCard } from "@/components/article/ArticleCard";
+import { Pagination } from "@/components/layout/Pagination";
 import type { Metadata } from "next";
 
 interface Props {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ page?: string }>;
 }
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.maibharatbolrahahoon.com";
@@ -45,14 +48,16 @@ export async function generateStaticParams() {
   return categories.map((c) => ({ slug: c.slug }));
 }
 
-export default async function CategoryPage({ params }: Props) {
+export default async function CategoryPage({ params, searchParams }: Props) {
   const { slug } = await params;
+  const { page: pageParam } = await searchParams;
   const categories = getCategories();
   const category = categories.find((c) => c.slug === slug);
 
   if (!category) notFound();
 
   const articles = getArticlesByCategory(slug);
+  const { items, page, totalPages } = paginate(articles, Number(pageParam));
 
   return (
     <div>
@@ -67,7 +72,7 @@ export default async function CategoryPage({ params }: Props) {
 
       {articles.length > 0 ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {articles.map((article) => (
+          {items.map((article) => (
             <div key={article.frontmatter.slug} className="article-grid-item">
               <ArticleCard
                 article={article.frontmatter}
@@ -83,6 +88,8 @@ export default async function CategoryPage({ params }: Props) {
           </p>
         </div>
       )}
+
+      <Pagination basePath={`/category/${slug}`} page={page} totalPages={totalPages} />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 
@@ -80,6 +81,7 @@ export default function RootLayout({
         </head>
         <body className="antialiased">
           {children}
+          <Analytics />
           {/* JSON-LD Organization Schema */}
           <script
             type="application/ld+json"

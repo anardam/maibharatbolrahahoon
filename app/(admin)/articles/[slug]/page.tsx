@@ -3,6 +3,7 @@
 import { useState, useEffect, use, lazy, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import CoverImageField from "@/components/editor/CoverImageField";
 
 const RichTextEditor = lazy(() => import("@/components/editor/RichTextEditor"));
 
@@ -191,12 +192,7 @@ export default function EditArticlePage({ params }: { params: Promise<{ slug: st
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2">
-            <div>
-              <label htmlFor="coverImage" className="mb-1.5 block text-xs font-bold uppercase tracking-widest text-[var(--muted-foreground)]">Cover Image URL</label>
-              <input id="coverImage" type="url" value={coverImage} onChange={(e) => setCoverImage(e.target.value)}
-                className="w-full rounded-xl border bg-transparent px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[var(--ring)]"
-                style={{ borderColor: "oklch(0.91 0.015 60)" }} />
-            </div>
+            <CoverImageField value={coverImage} onChange={setCoverImage} />
             <div>
               <label htmlFor="youtube" className="mb-1.5 block text-xs font-bold uppercase tracking-widest text-[var(--muted-foreground)]">YouTube URL</label>
               <input id="youtube" type="url" value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)}

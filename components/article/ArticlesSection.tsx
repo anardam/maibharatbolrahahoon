@@ -164,7 +164,7 @@ export function ArticlesSection({
       <SectionHeading
         title={translations.latestArticles}
         count={totalCount}
-        viewAllHref="/articles"
+        viewAllHref="/latest"
         viewAllLabel={viewAllLabel}
       />
 
@@ -240,7 +240,7 @@ export function ArticlesSection({
       {totalCount > articles.length && (
         <div className="mt-10 flex justify-center">
           <Link
-            href="/articles"
+            href="/latest"
             className="articles-view-all-btn group relative inline-flex items-center gap-2.5 overflow-hidden rounded-full border px-8 py-3 text-sm font-bold tracking-wide transition-all duration-300 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[var(--ring)] focus:ring-offset-2"
             style={{
               borderColor: "var(--primary)",

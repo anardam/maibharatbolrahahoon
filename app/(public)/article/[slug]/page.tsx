@@ -1,9 +1,11 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { getArticleBySlug, getPublishedArticles } from "@/lib/content";
+import { getArticleBySlug, getPublishedArticles, getRelatedArticles, sanitizeArticleHtml } from "@/lib/content";
 import { formatDate } from "@/lib/utils";
 import { YouTubeEmbed } from "@/components/article/YouTubeEmbed";
+import { ShareButtons } from "@/components/article/ShareButtons";
+import { ArticleCard } from "@/components/article/ArticleCard";
 import type { Metadata } from "next";
 
 interface Props {
@@ -62,6 +64,7 @@ export default async function ArticlePage({ params }: Props) {
   }
 
   const { frontmatter, content } = article;
+  const related = getRelatedArticles(article);
   const dateString = frontmatter.publishedAt ?? frontmatter.createdAt;
 
   return (
@@ -171,7 +174,11 @@ export default async function ArticlePage({ params }: Props) {
 
       {/* Article Content */}
       <div className="prose prose-lg max-w-none">
-        <div dangerouslySetInnerHTML={{ __html: content }} />
+        <div dangerouslySetInnerHTML={{ __html: sanitizeArticleHtml(content) }} />
+      </div>
+
+      <div className="mt-10">
+        <ShareButtons url={`${SITE_URL}/article/${frontmatter.slug}`} title={frontmatter.title} />
       </div>
 
       {/* Bottom divider + back link */}
@@ -204,6 +211,19 @@ export default async function ArticlePage({ params }: Props) {
           )}
         </div>
       </div>
+
+      {related.length > 0 && (
+        <section aria-labelledby="related-heading" className="mt-12">
+          <h2 id="related-heading" className="mb-5 text-xs font-bold uppercase tracking-[0.15em] text-[var(--muted-foreground)]">
+            Related Articles
+          </h2>
+          <div className="grid gap-5 sm:grid-cols-3">
+            {related.map((a) => (
+              <ArticleCard key={a.frontmatter.slug} article={a.frontmatter} variant="medium" />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* JSON-LD Article Schema */}
       <script
