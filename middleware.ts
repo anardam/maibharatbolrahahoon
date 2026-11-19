@@ -1,22 +1,31 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { clerkClient, clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { getAdminRole } from "@/lib/roles";
 
-const isProtectedRoute = createRouteMatcher([
+const isAdminPage = createRouteMatcher([
   "/dashboard(.*)",
   "/articles(.*)",
   "/categories(.*)",
   "/review(.*)",
   "/users(.*)",
-  "/api(.*)",
 ]);
 
-export default clerkMiddleware(async (auth, req) => {
-  if (isProtectedRoute(req)) {
-    // Require sign-in for all admin/api routes
-    const session = await auth.protect();
+const isApiRoute = createRouteMatcher(["/api(.*)"]);
 
-    // Additional whitelist check happens in API route handlers via requireAuth()
-    // Middleware only ensures the user is authenticated with Clerk
+export default clerkMiddleware(async (auth, req) => {
+  if (isAdminPage(req) || isApiRoute(req)) {
+    // Require sign-in for all admin/api routes
+    const { userId } = await auth.protect();
+
+    // API handlers check the whitelist via requireAuth() and return JSON errors;
+    // admin pages must check here, since layouts don't re-run on client navigation
+    if (isAdminPage(req)) {
+      const user = await (await clerkClient()).users.getUser(userId);
+      const email = user.emailAddresses[0]?.emailAddress;
+      if (!email || getAdminRole(email) === "none") {
+        return new NextResponse("Forbidden — your email is not whitelisted.", { status: 403 });
+      }
+    }
   }
 });
 
