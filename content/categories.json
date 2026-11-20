@@ -1,9 +1,34 @@
 [
-  { "name": "Politics", "slug": "politics" },
-  { "name": "Sports", "slug": "sports" },
-  { "name": "Technology", "slug": "technology" },
-  { "name": "Entertainment", "slug": "entertainment" },
-  { "name": "Education", "slug": "education" },
-  { "name": "Health", "slug": "health" },
-  { "name": "Business", "slug": "business" }
+  {
+    "name": "Politics",
+    "slug": "politics"
+  },
+  {
+    "name": "Sports",
+    "slug": "sports"
+  },
+  {
+    "name": "Technology",
+    "slug": "technology"
+  },
+  {
+    "name": "Entertainment",
+    "slug": "entertainment"
+  },
+  {
+    "name": "Education",
+    "slug": "education"
+  },
+  {
+    "name": "Health",
+    "slug": "health"
+  },
+  {
+    "name": "Business",
+    "slug": "business"
+  },
+  {
+    "name": "History",
+    "slug": "history"
+  }
 ]
